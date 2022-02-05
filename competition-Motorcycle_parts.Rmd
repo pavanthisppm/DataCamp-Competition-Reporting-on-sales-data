@@ -1,0 +1,213 @@
+---
+title: "Competition-Motorcycle_parts"
+author: "pavanthi sudasinghe"
+date: "06/02/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Reporting on sales data
+
+The competition and challenge.
+
+## 📖 Background
+You work in the accounting department of a company that sells motorcycle parts. The company operates three warehouses in a large metropolitan area.
+
+You’ve recently learned data manipulation and plotting, and suggest helping your colleague analyze past sales data. Your colleague wants to capture sales by payment method. She also needs to know the average unit price for each product line.
+
+## 💾 The data
+The team assembled the following file:
+
+#### The sales data has the following fields:
+- "date" - The date, from June to August 2021.
+- "warehouse" - The company operates three warehouses: North, Central, and West.
+- "client_type" - There are two types of customers: Retail and Wholesale.
+- "product_line" - Type of products purchased.
+- "quantity" - How many items were purchased.
+- "unit_price" - Price per item sold.
+- "total" - Total sale = quantity * unit_price.
+- "payment" - How the client paid: Cash, Credit card, Transfer.
+
+## 💪 Challenge
+Create a report to answer your colleague's questions. Include:
+
+1. What are the total sales for each payment method?
+2. What is the average unit price for each product line?
+3. Create plots to visualize findings for questions 1 and 2.
+4. [Optional] Investigate further (e.g., average purchase value by client type, total purchase value by product line, etc.)
+5. Summarize your findings.
+
+# load libraries
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+# load the dataset
+
+```{r}
+df <- readr::read_csv('./data/sales_data.csv')
+head(df)
+```
+
+# Data cleaning
+
+## Missing values
+
+```{r}
+sapply(df,function(x) sum(is.na(x)))
+```
+
+There are no missing values. So no need to worry.
+
+## Duplicates
+
+```{r}
+sum(duplicated(df))
+```
+
+And also, there are no duplicates. We've unique records.
+
+# Feature engineering and data preprocessing
+
+-Extract the month from the date and create a new variable called, 'Month' for further works.
+
+```{r}
+df$Month=as.integer(substr(df$date,6,7))
+for(i in 1:length(df$Month)){
+  if(df$Month[i]==6){
+    df$Month[i]='June'
+  }else if(df$Month[i]==7){
+    df$Month[i]='July'
+  }else{
+    df$Month[i]='August'
+  }
+}
+```
+
+# Analysis
+## Total sales for each payment method
+
+-Let's check Total sales for each payment method   
+ 
+```{r}
+t1=df %>% 
+  group_by(payment) %>%
+  summarize(total_sales = sum(total))
+t1
+
+```
+
+As you can see, it's clear that most sales were done through 'Transfer'. The lowest total sales were done using cash. Using the following plot, you can get a 
+better understanding of that.
+
+```{r}
+qplot(t1$payment, 
+      t1$total_sales, 
+      geom="col",
+      xlab="Payment Method",
+      ylab="Total Sales")
+```
+
+## The average unit price for each product line
+
+-Let's consider about the average unit price for each product line
+
+```{r}
+t2=df %>% 
+  group_by(product_line) %>%
+  summarize(avg_unit_price = mean(unit_price))
+t2
+```
+
+Product line 'Engine' has the highest average unit price, which is, 60.09180. The least average unit price, which is, 17.74052 belongs to the 'Breaking system' product line.
+
+```{r}
+qplot(t2$product_line, 
+      t2$avg_unit_price, 
+      geom="col",
+      xlab="Client type",
+      ylab="Average unit price")
+```
+
+The above bar plot explains it very well.
+
+## The average purchase value by client type
+
+-Also, if you consider Average purchase value by client type, you can see very informative results.
+
+```{r}
+t3=df %>% 
+  group_by(client_type) %>%
+  summarize(avg_purchase_value = mean(total))
+t3
+```
+
+Wholesale clients take the highest average purchase value, which is 709.5215. There is a big difference between our two clients on the average purchase value. You can easily see that from the below bar plot.
+
+```{r}
+qplot(t3$client_type, 
+      t3$avg_purchase_value, 
+      geom="col",
+      xlab="Client type",
+      ylab="Average purchase value"
+      )
+```
+
+## Total purchase value by product line
+
+-If we consider total purchase value by product line, it also gives very interesting outcomes.
+
+```{r}
+t4=df %>% 
+  group_by(product_line) %>%
+  summarize(total_purchase_value = sum(total))
+t4
+```
+
+As you can see in the above table, the highest total purchase value is from Suspension & traction, which is 73014.21. 
+You can see a graphical representation of that below.
+
+```{r}
+qplot(t4$product_line, 
+      t4$total_purchase_value, 
+      geom="col",
+      xlab="Product line",
+      ylab="Total purchase value"
+      )
+```
+
+## Total sales by month
+
+```{r}
+t5=df %>% 
+  group_by(Month) %>%
+  summarize(total_sales = sum(total))
+t5
+
+qplot(t5$Month, 
+      t5$total_sales, 
+      geom="col",
+      xlab="Month",
+      ylab="Total sales value"
+      )
+```
+
+If we consider our total sales in these three months, you can see that the Highest total sales are from August. 
+
+# Summary
+-most sales were done through the payment method 'Transfer'.
+
+-Product line 'Engine' has the highest average unit price & the least average unit price belongs to the 'Breaking system' product line.
+
+-Wholesale clients take the highest average purchase value & there is a big difference between our two clients on the average purchase value.
+
+-The highest total purchase value is from Suspension & traction.
+
+-The Highest total sales are from August.
+
+
