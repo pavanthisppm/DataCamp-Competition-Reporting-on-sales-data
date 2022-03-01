@@ -37,3 +37,5 @@ Create plots to visualize findings for questions 1 and 2.
 [Optional] Investigate further (e.g., average purchase value by client type, total purchase value by product line, etc.)
 
 Summarize your findings.
+
+https://app.datacamp.com/workspace/w/f30ee2d3-8f30-41d9-9883-e485f2934244
